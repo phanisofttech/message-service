@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-
 import com.pst.message.request.EmailRequest;
 
 @Service
@@ -25,10 +24,7 @@ public class EmailService {
 		message.setText(emailRequest.getBody());
 		message.setFrom("skysolutions.sky@gmail.com");
 
-		try {
-			mailSender.send(message);
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to send email", e);
-		}
+		mailSender.send(message);
+
 	}
 }
