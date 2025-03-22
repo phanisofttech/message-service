@@ -1,12 +1,14 @@
 package com.pst.message.controller;
 
+import com.pst.message.request.EmailRequest;
+import com.pst.message.service.EmailService;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.pst.message.request.EmailRequest;
-import com.pst.message.service.EmailService;
 
 @RestController
 @RequestMapping("/api/email")
@@ -16,12 +18,15 @@ public class EmailController {
 	private EmailService emailService;
 
 	@PostMapping
-	public String sendEMail(@RequestBody EmailRequest emailRequest) {
+	public ResponseEntity<String> sendEMail(@RequestBody EmailRequest emailRequest) {
 		try {
-			emailService.sendSimpleEmail(emailRequest);
-			return "Email sent to: " + emailRequest.getToEmail();
-		} catch (Exception e) {
-			return "Failed to send email: " + e.getMessage();
+			emailService.sendEmail(emailRequest);
+			return ResponseEntity.ok("✅ Email sent successfully to: " + emailRequest.getToEmail());
+		} catch (MessagingException e) {
+			System.err.println("❌ Error while sending email: " + e.getMessage());
+			return ResponseEntity.status(500).body("❌ Failed to send email: " + e.getMessage());
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body("❌ Invalid email request: " + e.getMessage());
 		}
 	}
 }
