@@ -1,10 +1,12 @@
 package com.pst.message.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
 import com.pst.message.request.EmailRequest;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
@@ -12,19 +14,23 @@ public class EmailService {
 	@Autowired
 	private JavaMailSender mailSender;
 
-	public void sendSimpleEmail(EmailRequest emailRequest) {
-		// Null checks (optional)
+	public void sendEmail(EmailRequest emailRequest) throws MessagingException {
+		// Validate email address
 		if (emailRequest.getToEmail() == null || emailRequest.getToEmail().isEmpty()) {
 			throw new IllegalArgumentException("Recipient email is missing!");
 		}
 
-		SimpleMailMessage message = new SimpleMailMessage();
-		message.setTo(emailRequest.getToEmail());
-		message.setSubject(emailRequest.getSubject());
-		message.setText(emailRequest.getBody());
-		message.setFrom("skysolutions.sky@gmail.com");
+		// Create a new MIME message
+		MimeMessage message = mailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+		// Set email properties
+		helper.setTo(emailRequest.getToEmail());
+		helper.setSubject(emailRequest.getSubject());
+		helper.setFrom("skysolutions.sky@gmail.com"); // Change if needed
+		helper.setText(emailRequest.getBody(), true); // Enable HTML content
+
+		// Send email
 		mailSender.send(message);
-
 	}
 }
